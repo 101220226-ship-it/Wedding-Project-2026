@@ -63,12 +63,21 @@ if(!isset($_SESSION['user_id'])){
         <h1>Wedding Booking</h1>
 
         <form action="../actions/booking_action.php" method="POST">
-            <input type="date" name="event_date" required>
+            <input type="date" id="event_date" name="event_date" required>
             <input type="text" name="location" placeholder="Wedding Location" required>
             <input type="number" name="guest_count" placeholder="Number of Guests" required>
             <input type="number" name="budget" placeholder="Budget ($)" required>
             <button type="submit">Continue to Deposit Payment ($50)</button>
         </form>
+        <script>
+        const dateInput = document.getElementById('event_date');
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.min = `${yyyy}-${mm}-${dd}`;
+        </script>
     </div>
 </div>
 </body>
