@@ -5,6 +5,7 @@ CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
     role ENUM('customer', 'admin') DEFAULT 'customer'
 );
 

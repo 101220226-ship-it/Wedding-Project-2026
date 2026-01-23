@@ -89,7 +89,13 @@
 
         <form action="../actions/login_action.php" method="POST">
             <input type="text" name="name" placeholder="Enter your name" required>
-            <input type="text" name="phone" placeholder="Enter your phone number" required>
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 15px;">
+                <select name="country_code" required style="width: 30%; padding: 14px; border-radius: 10px; border: none;">
+                    <option value="+961">🇱🇧 +961</option>
+                </select>
+                <input type="tel" name="phone" placeholder="Phone Number" pattern="[0-9]{7,15}" required style="width: 70%;" maxlength="15">
+            </div>
             <button type="submit">Login</button>
         </form>
 

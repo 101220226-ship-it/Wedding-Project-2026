@@ -45,12 +45,19 @@ if(!isset($_SESSION['booking_id'])){
       font-family:'Poppins', sans-serif;
       margin-bottom:20px;
     }
-    input{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      margin-bottom:15px;
+    .payment-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+      align-items: flex-start;
+    }
+    .payment-option-label {
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 1.1em;
+      gap: 8px;
     }
     button{
       width:100%;
@@ -74,14 +81,33 @@ if(!isset($_SESSION['booking_id'])){
     <h1>Deposit Payment</h1>
     <p>You must pay a <strong>$50 deposit</strong> to confirm your booking.</p>
 
-    <form action="../actions/payment_action.php" method="POST">
-      <input type="text" name="card_name" placeholder="Cardholder Name" required>
-      <input type="text" name="card_number" placeholder="Card Number (fake)" required>
-      <input type="text" name="expiry" placeholder="Expiry Date (MM/YY)" required>
-      <input type="text" name="cvv" placeholder="CVV" required>
+    <form id="paymentForm" action="../actions/payment_action.php" method="POST">
+      <div class="payment-options">
+        <label class="payment-option-label"><input type="radio" name="payment_method" value="cash" checked>Pay with Cash</label>
+        <label class="payment-option-label"><input type="radio" name="payment_method" value="whish">Pay with Whish Money</label>
+      </div>
 
-      <button type="submit">Pay $50 Deposit</button>
+      <div id="whishInfo" style="display:none; color:white; margin-bottom:15px;">
+        <strong>To pay by Whish Money:</strong><br>
+        Send $50 to <b>81644198</b> using the Whish Money app.<br>
+        After payment, click below to confirm.
+      </div>
+
+      <button type="submit">Submit</button>
     </form>
+    <script>
+      const paymentForm = document.getElementById('paymentForm');
+      const whishInfo = document.getElementById('whishInfo');
+      paymentForm.payment_method.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'whish') {
+            whishInfo.style.display = 'block';
+          } else {
+            whishInfo.style.display = 'none';
+          }
+        });
+      });
+    </script>
   </div>
 </body>
 </html>

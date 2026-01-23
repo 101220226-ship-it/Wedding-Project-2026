@@ -11,7 +11,6 @@
 
   <style>
     body{
-      background: #f8f6fc;
       font-family:'Poppins', sans-serif;
       text-align:center;
       padding:80px;
@@ -42,7 +41,42 @@
 
 <body>
   <h1>Payment Successful ✅</h1>
-  <p>Your booking is now pending admin approval.</p>
-  <a href="../index.php">Back to Home</a>
+  <?php
+  include("../config/db.php");
+  $show_decoration = false;
+  if (isset($_SESSION['booking_id'])) {
+      $bid = intval($_SESSION['booking_id']);
+      $q = $conn->query("SELECT status FROM bookings WHERE booking_id = $bid");
+      if ($q && $row = $q->fetch_assoc()) {
+          if ($row['status'] === 'approved') {
+              $show_decoration = true;
+          }
+      }
+  }
+  if ($show_decoration): ?>
+    <p style="color:green;">Your booking has been approved! You can now select your wedding decoration.</p>
+    <div class="button-group">
+      <a href="decoration_selection.php">Continue to Decoration Selection</a>
+      <a href="../index.php">Back to Home</a>
+    </div>
+  <?php endif; ?>
+  
+  <style>
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      margin-top: 30px;
+    }
+  </style>
+  <script>
+    // Simulate admin approval for demo. Replace with real approval check in production.
+    // If you have a way to check approval via PHP, use PHP to show/hide the div instead.
+    // For now, show the button after 3 seconds for demonstration.
+    setTimeout(function() {
+      document.getElementById('after-approval').style.display = 'block';
+    }, 3000);
+  </script>
 </body>
 </html>
