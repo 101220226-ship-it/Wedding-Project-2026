@@ -1,4 +1,15 @@
-<?php session_start(); ?>
+<?php session_start(); 
+include("../config/db.php");
+
+$sql = "UPDATE bookings
+        SET status = 'cancelled'
+        WHERE status = 'pending_payment'
+          AND expires_at IS NOT NULL
+          AND expires_at < NOW()";
+
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -89,11 +100,11 @@
 
         <form action="../actions/login_action.php" method="POST">
             <input type="text" name="name" placeholder="Enter your name" required>
-            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="email" name="email" placeholder="Enter your email (Optional)">
             <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 15px;">
-                <select name="country_code" required style="width: 30%; padding: 14px; border-radius: 10px; border: none;">
-                    <option value="+961">🇱🇧 +961</option>
-                </select>
+                <input type="text" name="country_code" placeholder="+961" required
+                       style="width: 30%; padding: 14px; border-radius: 10px; border: 1px solid #ddd;">
+
                 <input type="tel" name="phone" placeholder="Phone Number" pattern="[0-9]{7,15}" required style="width: 70%;" maxlength="15">
             </div>
             <button type="submit">Login</button>

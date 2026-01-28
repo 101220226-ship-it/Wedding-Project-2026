@@ -1,5 +1,7 @@
 <?php
+session_start();
 include("config/db.php");
+cancelExpiredBookings($conn);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -82,12 +84,12 @@ include("config/db.php");
 
         <div class="step">
             <span>2</span>
-            <p>Book your wedding date and pay a $50 deposit.</p>
+            <p>Book your wedding date and select your preferred decorations.</p>
         </div>
 
         <div class="step">
             <span>3</span>
-            <p>After approval, choose your preferred decorations.</p>
+            <p>Confirm your booking by completing the deposit within 24 hours.</p>
         </div>
     </div>
 

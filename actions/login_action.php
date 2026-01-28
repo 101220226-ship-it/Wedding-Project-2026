@@ -4,14 +4,29 @@ include("../config/db.php");
 
 
 // Get name and email
-$name  = trim($_POST['name']);
+$name  = isset($_POST['name']) ? trim($_POST['name']) : '';
 $email = isset($_POST['email']) ? trim($_POST['email']) : '';
 // Combine country code and phone number
 $phone = '';
-if (isset($_POST['country_code']) && isset($_POST['phone'])) {
+
+if (isset($_POST['country_code'], $_POST['phone'])) {
     $country_code = trim($_POST['country_code']);
     $phone_number = trim($_POST['phone']);
+
+    // remove spaces
+    $country_code = str_replace(' ', '', $country_code);
+    $phone_number = preg_replace('/\s+/', '', $phone_number);
+
+    // if user forgot "+"
+    if ($country_code !== '' && $country_code[0] !== '+') {
+        $country_code = '+' . $country_code;
+    }
+
     $phone = $country_code . $phone_number;
+    if ($name == '' || $phone == '') {
+    header("Location: ../pages/login.php?err=missing");
+    exit();
+}
 }
 
 // Check if customer exists

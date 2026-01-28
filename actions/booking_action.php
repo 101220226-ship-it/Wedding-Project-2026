@@ -1,63 +1,87 @@
 <?php
 session_start();
-include("../config/db.php");
+require_once __DIR__ . '/../config/db.php';
 
-if(!isset($_SESSION['user_id'])){
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: ../pages/booking_form.php");
+    exit;
+}
+
+if (!isset($_SESSION['user_id'])) {
     header("Location: ../pages/login.php");
-    exit();
+    exit;
 }
 
+// Collect
+$event_date  = trim($_POST['event_date'] ?? '');
+$venue_type  = trim($_POST['venue_type'] ?? 'indoor');
+$location    = trim($_POST['location'] ?? '');
+$guest_count = (int)($_POST['guest_count'] ?? 0);
+$budget      = (float)($_POST['budget'] ?? 0);
 
-$user_id = $_SESSION['user_id'];
-$event_date = $_POST['event_date'];
-$location = $_POST['location'];
-$guest_count = $_POST['guest_count'];
-$budget = $_POST['budget'];
-// Combine country code and phone if provided
-$phone = null;
-if (isset($_POST['country_code']) && isset($_POST['phone'])) {
-    $country_code = trim($_POST['country_code']);
-    $phone_number = trim($_POST['phone']);
-    $phone = $country_code . $phone_number;
+// Save old values so page doesn't feel "cleared"
+$_SESSION['booking_old'] = [
+    'event_date'  => $event_date,
+    'venue_type'  => $venue_type,
+    'location'    => $location,
+    'guest_count' => $guest_count,
+    'budget'      => $budget,
+];
+
+$errors = [];
+
+// Validation
+if ($event_date === '') $errors['event_date'] = "Event date is required.";
+if (!in_array($venue_type, ['indoor', 'outdoor'], true)) $errors['venue_type'] = "Invalid venue type.";
+if ($location === '') $errors['location'] = "Location is required.";
+if ($guest_count <= 0) $errors['guest_count'] = "Guest count must be at least 1.";
+if ($budget <= 0) $errors['budget'] = "Budget must be greater than 0.";
+
+if (!empty($errors)) {
+    $_SESSION['booking_errors'] = $errors;
+    header("Location: ../pages/booking_form.php");
+    exit;
 }
 
-// First check how many events exist in same date (max 2)
-$check = "SELECT COUNT(*) as total FROM bookings WHERE event_date = ?";
-$stmt = $conn->prepare($check);
-$stmt->bind_param("s", $event_date);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-
-if($row['total'] >= 2){
-    echo "<h2 style='color:red;text-align:center;'>Sorry! Only 2 events can be booked on the same day.</h2>";
-    echo "<a href='../pages/booking_form.php'>Go Back</a>";
-    exit();
+// DB connection check
+if (!$conn || $conn->connect_errno) {
+    $_SESSION['booking_errors'] = ['db' => 'Database connection failed. Restart MySQL in XAMPP.'];
+    header("Location: ../pages/booking_form.php");
+    exit;
 }
 
-// Insert booking (status pending until admin approves)
-$sql = "INSERT INTO bookings (user_id, event_date, location, guest_count, budget, status)
-        VALUES (?, ?, ?, ?, ?, 'pending')";
-$stmt2 = $conn->prepare($sql);
-$stmt2->bind_param("issid", $user_id, $event_date, $location, $guest_count, $budget);
-$stmt2->execute();
+try {
+    // IMPORTANT: make sure these columns exist in your bookings table:
+    // user_id, event_date, venue_type, location, guest_count, budget
+    // (status is optional; remove it if not in your table)
+    $sql = "INSERT INTO bookings (user_id, event_date, venue_type, location, guest_count, budget, status)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending')";
 
-// Save booking id in session to continue with payment
-$_SESSION['booking_id'] = $conn->insert_id;
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
 
-// Send email notification to admin
-$admin_email = "fatimaezzedine04@gmail.com";
-$subject = "New Wedding Booking Pending Approval";
-$message = "A new wedding booking has been made and is pending your approval.\n\n"
-    . "Event Date: $event_date\n"
-    . "Location: $location\n"
-    . "Number of Guests: $guest_count\n"
-    . "Budget: $budget\n\n"
-    . "Please log in to the admin panel to approve or reject this booking.";
-$headers = "From: noreply@yourdomain.com";
-@mail($admin_email, $subject, $message, $headers);
+    // i s s s i d
+    $user_id = (int)$_SESSION['user_id'];
+    $stmt->bind_param("isssid", $user_id, $event_date, $venue_type, $location, $guest_count, $budget);
 
-// Redirect to payment page
-header("Location: ../pages/payment.php");
-exit();
-?>
+    if (!$stmt->execute()) {
+        throw new Exception("Execute failed: " . $stmt->error);
+    }
+
+    $booking_id = (int)$conn->insert_id;
+    $_SESSION['booking_id'] = $booking_id;
+
+    // Clear old cache after success
+    unset($_SESSION['booking_old'], $_SESSION['booking_errors']);
+
+    // Go to decoration categories
+    header("Location: ../pages/decoration_by_category.php");
+    exit;
+
+} catch (Throwable $e) {
+    $_SESSION['booking_errors'] = ['db' => $e->getMessage()];
+    header("Location: ../pages/booking_form.php");
+    exit;
+}
