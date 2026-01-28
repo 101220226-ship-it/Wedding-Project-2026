@@ -20,7 +20,7 @@ CREATE TABLE admins (
 
 -- Insert default admin (password: admin123)
 INSERT INTO admins (name, email, password) VALUES 
-('Admin', 'admin@eventzone.com', '$2y$10$8K1p/a0dL1LXMIgoEDFrO.CQqMJ6khRBbCl5qM5pLd.jt0KFjJEqy');
+('Admin', 'admin@eventzone.com', '$2y$10$N2cZ8mcu6fbRPAMhR9EG0.rnwRm2VAV/2fUj3WMDgwHkzhK7SSVca');
 
 CREATE TABLE bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
