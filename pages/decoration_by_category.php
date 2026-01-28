@@ -47,9 +47,8 @@ $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
  * Overall total
  */
 $total_sql = "
-SELECT COALESCE(SUM(i.price), 0) AS total
+SELECT COALESCE(SUM(bd.line_total), 0) AS total
 FROM booking_decorations bd
-JOIN decoration_items i ON i.item_id = bd.item_id
 WHERE bd.booking_id = ?
 ";
 $total_stmt = $conn->prepare($total_sql);
@@ -103,10 +102,14 @@ body {
     border-radius: 18px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.06);
 }
-.price {
-    font-weight: bold;
-    color: #5a2ea6;
-    margin: 15px 0;
+.card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px 0;
+}
+.cat-icon {
+    font-size: 28px;
 }
 .view-btn {
     background: #5a2ea6;
@@ -159,14 +162,21 @@ body {
 </div>
 
 <div class="grid">
-<?php foreach ($categories as $cat): ?>
+<?php 
+$category_icons = [
+    'Setup' => '🎪',
+    'Tables' => '🪑',
+    'Chairs' => '💺',
+    'Flowers' => '💐',
+    'Lighting' => '💡',
+    'Welcome Sign' => '📜'
+];
+foreach ($categories as $cat): 
+    $icon = $category_icons[$cat['category_name']] ?? '📦';
+?>
     <div class="card">
-        <h3><?= htmlspecialchars($cat['category_name']) ?></h3>
+        <h3><span class="cat-icon"><?= $icon ?></span> <?= htmlspecialchars($cat['category_name']) ?></h3>
         <p>Browse items in this category</p>
-
-        <div class="price">
-            Category total: $<?= number_format((float)$cat['category_total'], 2) ?>
-        </div>
 
         <?php if ($payment_done): ?>
             <a class="view-btn disabled" href="#">Locked</a>

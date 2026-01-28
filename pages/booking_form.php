@@ -38,7 +38,7 @@ while ($row = $q->fetch_assoc()) {
 
 <style>
 body{
-    background:url("../public/images/hero.jpeg") no-repeat center center/cover;
+    background:url("../images/hero.jpeg") no-repeat center center/cover;
     min-height:100vh;
     display:flex;
     justify-content:center;

@@ -56,6 +56,15 @@ a{
     border-radius:5px;
 }
 
+/* ADMIN BUTTON */
+.admin-btn {
+    background: linear-gradient(135deg, #1a1a2e, #16213e) !important;
+    border: 1px solid #5b2c83;
+}
+.admin-btn:hover {
+    background: linear-gradient(135deg, #5b2c83, #7b4ce2) !important;
+}
+
 /* HERO SECTION */
 .hero {
   position: relative;

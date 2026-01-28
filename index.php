@@ -24,6 +24,7 @@ cancelExpiredBookings($conn);
         <a href="#services">Services</a>
         <a href="#how">How it Works</a>
         <a href="pages/login.php" class="btn-nav">Login</a>
+        <a href="admin/login.php" class="btn-nav admin-btn">Admin</a>
     </nav>
 </header>
 
